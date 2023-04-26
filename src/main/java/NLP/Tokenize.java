@@ -17,7 +17,7 @@ public class Tokenize {
     public static void main(String[] args) {
         StanfordCoreNLP stanfordCoreNLP = Pipeline.getPipeline();
         
-        String text = "Hey! This is Omar Atriano";
+        String text = "I am trying to learn NLP. It is very interesting. I want to learn more.";
         
         CoreDocument coredocument = new CoreDocument(text);
         
@@ -26,7 +26,7 @@ public class Tokenize {
         List<CoreLabel> coreLabelList = coredocument.tokens();
         
         for(CoreLabel coreLabel: coreLabelList){
-            System.out.println(coreLabel.originalText());
+            System.out.println(coreLabel.originalText()+" = "+coreLabel.lemma());
         }
         
     }
