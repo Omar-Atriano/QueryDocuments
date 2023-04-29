@@ -4,17 +4,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public final class Database {
+public final class DatabaseConnection {
     static String url = "jdbc:mysql://localhost:3306/";
     //database name
-    static String dbName = "test";
+    static String dbName = "documents";
     //username and password
     static String userName = "root";
-    static String password = "$J1E2%S3U4S5*";
+    static String password = "root";
     //create a new instance of the class
     static String driver = "com.mysql.cj.jdbc.Driver";
     static Connection connection;
-    private Database(){}
+    private DatabaseConnection(){}
 
     public static Connection getConnection() {
         if(connection == null){
@@ -39,4 +39,6 @@ public final class Database {
             throw new RuntimeException(e);
         }
     }
+    
+    
 }
