@@ -29,6 +29,7 @@ public class Document {
         List<String> wordStems;// = new ArrayList<String>();
         List<String> wordCode;// = new ArrayList<String>();
         
+        
     public Document(String titulo, String author, String location){
         stopWords = new ArrayList<String>();
         contadorDeElementos = new HashMap<String, Integer>();
@@ -45,7 +46,7 @@ public class Document {
         
         //Hace las listas WordStems y StopWords
         for(CoreLabel coreLabel: coreLabelList){
-            System.out.println(coreLabel.originalText() +" = "+coreLabel.lemma() +" = "+coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class));
+//            System.out.println(coreLabel.originalText() +" = "+coreLabel.lemma() +" = "+coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class));
             if(wordCode.contains(coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class)))
                 wordStems.add(coreLabel.lemma());
             else
@@ -65,6 +66,42 @@ public class Document {
          checkTerms();
          registerAppearances();
     }
+    
+    
+    public Document(String titulo){
+        stopWords = new ArrayList<String>();
+        contadorDeElementos = new HashMap<String, Integer>();
+        wordStems = new ArrayList<String>();
+        wordCode = new ArrayList<String>();
+            wordCode.add("JJ");    wordCode.add("JJR");   wordCode.add("JJS");
+            wordCode.add("NN");    wordCode.add("NNS");   wordCode.add("NNP");
+            wordCode.add("NNPS");  wordCode.add("VB");    wordCode.add("VBD");
+            wordCode.add("VBG");   wordCode.add("VBN");   wordCode.add("VBP");   wordCode.add("VBZ");
+            
+        CoreDocument coredocument = new CoreDocument(titulo);
+        stanfordCoreNLP.annotate(coredocument);
+        List<CoreLabel> coreLabelList = coredocument.tokens();
+        
+        //Hace las listas WordStems y StopWords
+        for(CoreLabel coreLabel: coreLabelList){
+//            System.out.println(coreLabel.originalText() +" = "+coreLabel.lemma() +" = "+coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class));
+            if(wordCode.contains(coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class)))
+                wordStems.add(coreLabel.lemma());
+            else
+                stopWords.add(coreLabel.lemma());
+        }
+        //Cuenta las apariciones de los terminos de wordStems
+         for (String elemento : wordStems) {
+            if (contadorDeElementos.containsKey(elemento)) {
+                contadorDeElementos.put(elemento, contadorDeElementos.get(elemento) + 1);
+            } else {
+                contadorDeElementos.put(elemento, 1);
+            }
+        }
+         
+
+    }
+    
     public void insertDocDB(String title, String author, String location){
         try{
             op.setDocument(title, author, location);
