@@ -100,8 +100,8 @@ public class DatabaseOperations {
         // Variables de conexión y consulta a la base de datos
 
         PreparedStatement stmt = null;
-        ResultSet rs = null;
-        String sql = "";
+        ResultSet rs ;
+        String sql ;
 
         // Variables para almacenar los datos
         int numDocs = 0;

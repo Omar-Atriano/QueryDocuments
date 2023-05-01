@@ -22,10 +22,26 @@ public class Stlmma {
     static Document token;
 
     public static void main(String[] args) {
+        //Obtiene la matriz de la base de datos
         DatabaseOperations databaseOperations = new DatabaseOperations();
         double[][] matrix = databaseOperations.getMatrix(); //get matrix from db
+        //Reduce la matriz
         double[][] reducedMatrix = reduceMatrix(matrix); //reduce matrix
-        printMatrix(reducedMatrix); //print reduced matrix
+        printFormatedMatrix(reducedMatrix); //print reduced matrix
+        //Obtiene documentos de la matriz reducida
+        double[] document1 = getColumn(reducedMatrix, 0); //get document 1
+        System.out.println("--------------------------------------------------------------------");
+        printArray(document1); //print document 1
+        double[] document2 = getColumn(reducedMatrix, 1); //get document 2
+        printArray(document2); //print document 2
+        //Mide las funciones de similaridad y disimilaridad
+        System.out.println("Cosine similarity");
+        System.out.println(cosineSimilarity(document1, document2)); // el cosine es una medida de similaridad
+        System.out.println("Manhattan distance");
+        System.out.println(manhattanDistance(document1,document2)); // la distancia manhattan calcula la disimilaridad
+        System.out.println("Jaccard Coeficient");
+        System.out.println(JaccardCoeficient(document1,document2)); // el coeficiente de jaccard es una medida de similaridad
+
 
     }
     //create a method that eliminates the numbers from the diagonal of the matrix s and returns the matrix s
@@ -68,6 +84,50 @@ public class Stlmma {
         }
         return reducedSVD;
 
+    }
+    public static void printArray(double[] array){
+        for(double element : array){
+            System.out.printf("%1.0f ", element);
+        }
+        System.out.println();
+    }
+    //metod that calculates the cosine similarity between two documents
+    public static double cosineSimilarity(double[] document1, double[] document2){
+        double dotProduct = 0;
+        double magnitude1 = 0;
+        double magnitude2 = 0;
+        for(int i = 0; i < document1.length; i++){
+            dotProduct += document1[i] * document2[i];
+            magnitude1 += Math.pow(document1[i], 2);
+            magnitude2 += Math.pow(document2[i], 2);
+        }
+        magnitude1 = Math.sqrt(magnitude1);
+        magnitude2 = Math.sqrt(magnitude2);
+        return dotProduct / (magnitude1 * magnitude2);
+    }
+    public static double manhattanDistance(double[] document1, double[] document2){
+        double distance = 0;
+        for(int i = 0; i < document1.length; i++){
+            distance += Math.abs(document1[i] - document2[i]);
+        }
+        return distance;
+    }
+    //method that calculates the jaccard coeficient between two documents
+    public static double JaccardCoeficient(double[] document1, double[] document2){
+        double dotProduct = 0;
+        double c = 0;
+        for(int i = 0; i< document1.length; i++){
+            dotProduct+=document1[i]*document2[i];
+            c+=Math.pow(document1[i],2)+Math.pow(document2[i],2);
+        }
+        return dotProduct/(c-dotProduct);
+    }
+    public static double[] getColumn(double[][] matrix, int column){
+        double[] columnArray = new double[matrix.length];
+        for(int i = 0; i < matrix.length; i++){
+            columnArray[i] = matrix[i][column];
+        }
+        return columnArray;
     }
     public static void fillDataBase() {
         List<String> title = new ArrayList<String>();
