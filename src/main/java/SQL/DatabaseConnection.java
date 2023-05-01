@@ -10,7 +10,7 @@ public final class DatabaseConnection {
     static String dbName = "documents";
     //username and password
     static String userName = "root";
-    static String password = "root";
+    static String password = "$J1E2%S3U4S5*";
     //create a new instance of the class
     static String driver = "com.mysql.cj.jdbc.Driver";
     static Connection connection;
