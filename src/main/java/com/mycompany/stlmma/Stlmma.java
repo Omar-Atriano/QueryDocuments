@@ -26,13 +26,18 @@ public class Stlmma {
         DatabaseOperations databaseOperations = new DatabaseOperations();
         double[][] matrix = databaseOperations.getMatrix(); //get matrix from db
         //Reduce la matriz
+        printFormatedMatrix(matrix);
         double[][] reducedMatrix = reduceMatrix(matrix); //reduce matrix
+        double[][] simplifiedMatrix = eleminateColumnWithCeros(reducedMatrix); //reduce matrix
+        System.out.println("--------------------------------------------------------------------");
         printFormatedMatrix(reducedMatrix); //print reduced matrix
+        System.out.println("--------------------------------------------------------------------");
+        printFormatedMatrix(simplifiedMatrix); //print reduced matrix
         //Obtiene documentos de la matriz reducida
-        double[] document1 = getColumn(reducedMatrix, 0); //get document 1
+        double[] document1 = simplifiedMatrix[0];  //get document 1
         System.out.println("--------------------------------------------------------------------");
         printArray(document1); //print document 1
-        double[] document2 = getColumn(reducedMatrix, 1); //get document 2
+        double[] document2 = simplifiedMatrix[1]; //get document 2
         printArray(document2); //print document 2
         //Mide las funciones de similaridad y disimilaridad
         System.out.println("Cosine similarity");
@@ -128,6 +133,39 @@ public class Stlmma {
             columnArray[i] = matrix[i][column];
         }
         return columnArray;
+    }
+    public static double[][] eleminateColumnWithCeros(double [][] matrix){
+        int count = 0;
+        for(int i = 0; i < matrix[0].length; i++){
+            boolean isNullColumn = true;
+            for(int j = 0;j<matrix.length;j++){
+                if(matrix[j][i] != 0){
+                    isNullColumn = false;
+                    break;
+                }
+            }
+            if(!isNullColumn){
+                count++;
+            }
+        }
+        double[][] newMatrix = new double[matrix.length][count];
+        int index = 0;
+        for(int i = 0; i < matrix[0].length; i++){
+            boolean isNullColumn = true;
+            for(int j = 0;j<matrix.length;j++){
+                if(matrix[j][i] != 0){
+                    isNullColumn = false;
+                    break;
+                }
+            }
+            if(!isNullColumn){
+                for(int j = 0; j < matrix.length; j++){
+                    newMatrix[j][index] = matrix[j][i];
+                }
+                index++;
+            }
+        }
+        return newMatrix;
     }
     public static void fillDataBase() {
         List<String> title = new ArrayList<String>();
