@@ -29,38 +29,7 @@ public class Stlmma {
         //Obtiene la matriz de la base de datos
         databaseOperations = new DatabaseOperations();
         matrix = databaseOperations.getMatrix(); //get matrix from db
-        //Reduce la matriz
-       /*/ double[][] reducedMatrix = reduceMatrix(matrix); //reduce matrix
-        Pair<List<Integer>, double[][]> pair = eleminateColumnWithCeros(matrix);
-        double[][] simplifiedMatrix = pair.getRight();
-        System.out.println("--------------------------------------------------------------------");
-        printFormatedMatrix(reducedMatrix); //print reduced matrix
-        System.out.println("--------------------------------------------------------------------");
-        printFormatedMatrix(simplifiedMatrix); //print reduced matrix
-        //Obtiene documentos de la matriz reducida
-        double[] document1 = simplifiedMatrix[0];  //get document 1
-        System.out.println("--------------------------------------------------------------------");
-        printArray(document1); //print document 1
-        System.out.println(document1.length);
-        double[] document2 = simplifiedMatrix[2]; //get document 2
-        printArray(document2); //print document 2
-        Document document = new Document("The Benefits of Physical Activity and Positive Mental Health for Reducing the Burden of COVID-19: Validation from a Cross-sectional and Longitudinal Investigation in China and Germany.");
-        double[] query = document.makeQuery();
-        System.out.println("query");
-        printArray(query);
-        System.out.println(query.length);
-        double[] simplifiedQuery = removeIndexes(query, pair.getLeft());
-        printArray(simplifiedQuery);
-        //Mide las funciones de similaridad y disimilaridad
-        System.out.println("Cosine similarity");
-        System.out.println(cosineSimilarity(document1, document2)); // el cosine es una medida de similaridad
-        System.out.println("Manhattan distance");
-        System.out.println(manhattanDistance(document1, document2)); // la distancia manhattan calcula la disimilaridad
-        System.out.println("Jaccard Coeficient");
-        System.out.println(JaccardCoeficient(document1, document2)); // el coeficiente de jaccard es una medida de similaridad */
         while (menu())
-
-
         databaseOperations.closeConnection();
 
     }
@@ -93,21 +62,6 @@ public class Stlmma {
             }
             System.out.println();
         }
-    }
-
-    public static double[][] reduceMatrix(double[][] matrix) {
-        RealMatrix realMatrix = MatrixUtils.createRealMatrix(matrix);
-        SingularValueDecomposition svd = new SingularValueDecomposition(realMatrix); //calcula svd
-        double[][] matrixS = svd.getS().getData(); //imprime matriz s
-        double[][] reducedS = eliminateNumbers(matrixS, 2); //elimina numeros de la diagonal de la matriz s
-        double[][] reducedSVD = svd.getU().multiply(MatrixUtils.createRealMatrix(reducedS)).multiply(svd.getVT()).getData(); //calcula la matriz reducida
-        for (int i = 0; i < reducedSVD.length; i++) {
-            for (int j = 0; j < reducedSVD[0].length; j++) {
-                reducedSVD[i][j] = Math.round(Math.abs(reducedSVD[i][j]));
-            }
-        }
-        return reducedSVD;
-
     }
 
     public static void printArray(double[] array) {
@@ -151,13 +105,6 @@ public class Stlmma {
         return dotProduct / (c - dotProduct);
     }
 
-    public static double[] getColumn(double[][] matrix, int column) {
-        double[] columnArray = new double[matrix.length];
-        for (int i = 0; i < matrix.length; i++) {
-            columnArray[i] = matrix[i][column];
-        }
-        return columnArray;
-    }
 
     public static Pair<List<Integer>, double[][]> eleminateColumnWithCeros(double[][] matrix) {
         int count = 0;
