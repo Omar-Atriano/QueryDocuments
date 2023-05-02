@@ -6,6 +6,7 @@ package com.mycompany.stlmma;
 
 import NLP.Document;
 import SQL.DatabaseOperations;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
@@ -28,7 +29,8 @@ public class Stlmma {
         //Reduce la matriz
         printFormatedMatrix(matrix);
         double[][] reducedMatrix = reduceMatrix(matrix); //reduce matrix
-        double[][] simplifiedMatrix = eleminateColumnWithCeros(reducedMatrix); //reduce matrix
+        Pair<List<Integer>, double[][]> pair = eleminateColumnWithCeros(matrix);
+        double[][] simplifiedMatrix = pair.getRight();
         System.out.println("--------------------------------------------------------------------");
         printFormatedMatrix(reducedMatrix); //print reduced matrix
         System.out.println("--------------------------------------------------------------------");
@@ -37,7 +39,8 @@ public class Stlmma {
         double[] document1 = simplifiedMatrix[0];  //get document 1
         System.out.println("--------------------------------------------------------------------");
         printArray(document1); //print document 1
-        double[] document2 = simplifiedMatrix[1]; //get document 2
+        System.out.println(document1.length);
+        double[] document2 = simplifiedMatrix[2]; //get document 2
         printArray(document2); //print document 2
         //Mide las funciones de similaridad y disimilaridad
         System.out.println("Cosine similarity");
@@ -45,8 +48,15 @@ public class Stlmma {
         System.out.println("Manhattan distance");
         System.out.println(manhattanDistance(document1,document2)); // la distancia manhattan calcula la disimilaridad
         System.out.println("Jaccard Coeficient");
-        System.out.println(JaccardCoeficient(document1,document2)); // el coeficiente de jaccard es una medida de similaridad
-
+        System.out.println(JaccardCoeficient(document1,document2)); // el coeficiente de jaccard es una medida de similaridad */
+        Document document = new Document("The Benefits of Physical Activity and Positive Mental Health for Reducing the Burden of COVID-19: Validation from a Cross-sectional and Longitudinal Investigation in China and Germany.");
+        double[] query = document.makeQuery();
+        System.out.println("query");
+        printArray(query);
+        System.out.println(query.length);
+        double[] simplifiedQuery = removeIndexes(query, pair.getLeft());
+        printArray(simplifiedQuery);
+        databaseOperations.closeConnection();
 
     }
     //create a method that eliminates the numbers from the diagonal of the matrix s and returns the matrix s
@@ -134,7 +144,7 @@ public class Stlmma {
         }
         return columnArray;
     }
-    public static double[][] eleminateColumnWithCeros(double [][] matrix){
+    public static Pair<List<Integer>, double[][]> eleminateColumnWithCeros(double [][] matrix){
         int count = 0;
         for(int i = 0; i < matrix[0].length; i++){
             boolean isNullColumn = true;
@@ -148,6 +158,7 @@ public class Stlmma {
                 count++;
             }
         }
+        List<Integer> eliminatedColumns = new ArrayList<Integer>();
         double[][] newMatrix = new double[matrix.length][count];
         int index = 0;
         for(int i = 0; i < matrix[0].length; i++){
@@ -163,9 +174,25 @@ public class Stlmma {
                     newMatrix[j][index] = matrix[j][i];
                 }
                 index++;
+            }else{
+
+                eliminatedColumns.add(i);
             }
         }
-        return newMatrix;
+
+        Pair<List<Integer>, double[][]> pair = Pair.of(eliminatedColumns, newMatrix);
+        return pair;
+    }
+    public static double[] removeIndexes (double[] array, List<Integer> indexes){
+        double[] newArray = new double[array.length - indexes.size()];
+        int index = 0;
+        for(int i = 0; i < array.length; i++){
+            if(!indexes.contains(i)){
+                newArray[index] = array[i];
+                index++;
+            }
+        }
+        return newArray;
     }
     public static void fillDataBase() {
         List<String> title = new ArrayList<String>();

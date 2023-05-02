@@ -4,179 +4,222 @@
  */
 package NLP;
 
+import SQL.DatabaseConnection;
 import SQL.DatabaseOperations;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- *
  * @author Omar
  */
 public class Document {
     //////////////////
     StanfordCoreNLP stanfordCoreNLP = Pipeline.getPipeline();
     DatabaseOperations op = new DatabaseOperations();
-    
+
     List<String> stopWords;// = new ArrayList<String>();
-        Map<String, Integer> contadorDeElementos;// = new HashMap<String, Integer>();
-        List<String> wordStems;// = new ArrayList<String>();
-        List<String> wordCode;// = new ArrayList<String>();
-        
-        
-    public Document(String titulo, String author, String location){
+    Map<String, Integer> contadorDeElementos;// = new HashMap<String, Integer>();
+    List<String> wordStems;// = new ArrayList<String>();
+    List<String> wordCode;// = new ArrayList<String>();
+
+
+    public Document(String titulo, String author, String location) {
         stopWords = new ArrayList<String>();
         contadorDeElementos = new HashMap<String, Integer>();
         wordStems = new ArrayList<String>();
         wordCode = new ArrayList<String>();
-            wordCode.add("JJ");    wordCode.add("JJR");   wordCode.add("JJS");
-            wordCode.add("NN");    wordCode.add("NNS");   wordCode.add("NNP");
-            wordCode.add("NNPS");  wordCode.add("VB");    wordCode.add("VBD");
-            wordCode.add("VBG");   wordCode.add("VBN");   wordCode.add("VBP");   wordCode.add("VBZ");
-            
+        wordCode.add("JJ");
+        wordCode.add("JJR");
+        wordCode.add("JJS");
+        wordCode.add("NN");
+        wordCode.add("NNS");
+        wordCode.add("NNP");
+        wordCode.add("NNPS");
+        wordCode.add("VB");
+        wordCode.add("VBD");
+        wordCode.add("VBG");
+        wordCode.add("VBN");
+        wordCode.add("VBP");
+        wordCode.add("VBZ");
+
         CoreDocument coredocument = new CoreDocument(titulo);
         stanfordCoreNLP.annotate(coredocument);
         List<CoreLabel> coreLabelList = coredocument.tokens();
-        
+
         //Hace las listas WordStems y StopWords
-        for(CoreLabel coreLabel: coreLabelList){
+        for (CoreLabel coreLabel : coreLabelList) {
 //            System.out.println(coreLabel.originalText() +" = "+coreLabel.lemma() +" = "+coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class));
-            if(wordCode.contains(coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class)))
+            if (wordCode.contains(coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class)))
                 wordStems.add(coreLabel.lemma());
             else
                 stopWords.add(coreLabel.lemma());
         }
         //Cuenta las apariciones de los terminos de wordStems
-         for (String elemento : wordStems) {
+        for (String elemento : wordStems) {
             if (contadorDeElementos.containsKey(elemento)) {
                 contadorDeElementos.put(elemento, contadorDeElementos.get(elemento) + 1);
             } else {
                 contadorDeElementos.put(elemento, 1);
             }
         }
-         
-         //Insertion of the  Document into the DB
-         insertDocDB(titulo, author, location);
-         checkTerms();
-         registerAppearances();
+
+        //Insertion of the  Document into the DB
+        insertDocDB(titulo, author, location);
+        checkTerms();
+        registerAppearances();
     }
-    
-    
-    public Document(String titulo){
+
+
+    public Document(String titulo) {
         stopWords = new ArrayList<String>();
         contadorDeElementos = new HashMap<String, Integer>();
         wordStems = new ArrayList<String>();
         wordCode = new ArrayList<String>();
-            wordCode.add("JJ");    wordCode.add("JJR");   wordCode.add("JJS");
-            wordCode.add("NN");    wordCode.add("NNS");   wordCode.add("NNP");
-            wordCode.add("NNPS");  wordCode.add("VB");    wordCode.add("VBD");
-            wordCode.add("VBG");   wordCode.add("VBN");   wordCode.add("VBP");   wordCode.add("VBZ");
-            
+        wordCode.add("JJ");
+        wordCode.add("JJR");
+        wordCode.add("JJS");
+        wordCode.add("NN");
+        wordCode.add("NNS");
+        wordCode.add("NNP");
+        wordCode.add("NNPS");
+        wordCode.add("VB");
+        wordCode.add("VBD");
+        wordCode.add("VBG");
+        wordCode.add("VBN");
+        wordCode.add("VBP");
+        wordCode.add("VBZ");
+
         CoreDocument coredocument = new CoreDocument(titulo);
         stanfordCoreNLP.annotate(coredocument);
         List<CoreLabel> coreLabelList = coredocument.tokens();
-        
+
         //Hace las listas WordStems y StopWords
-        for(CoreLabel coreLabel: coreLabelList){
+        for (CoreLabel coreLabel : coreLabelList) {
 //            System.out.println(coreLabel.originalText() +" = "+coreLabel.lemma() +" = "+coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class));
-            if(wordCode.contains(coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class)))
+            if (wordCode.contains(coreLabel.get(CoreAnnotations.PartOfSpeechAnnotation.class)))
                 wordStems.add(coreLabel.lemma());
             else
                 stopWords.add(coreLabel.lemma());
         }
         //Cuenta las apariciones de los terminos de wordStems
-         for (String elemento : wordStems) {
+        for (String elemento : wordStems) {
             if (contadorDeElementos.containsKey(elemento)) {
                 contadorDeElementos.put(elemento, contadorDeElementos.get(elemento) + 1);
             } else {
                 contadorDeElementos.put(elemento, 1);
             }
         }
-         
+
 
     }
-    
-    public void insertDocDB(String title, String author, String location){
-        try{
+
+    public void insertDocDB(String title, String author, String location) {
+        try {
             op.setDocument(title, author, location);
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-    }    
-    public void checkTerms(){
+    }
+
+    public void checkTerms() {
         List<String> dbTerms = new ArrayList<String>();
-        try{
+        try {
             dbTerms = op.getTerms();
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        for(String elemento: wordStems){
-            if(!dbTerms.contains(elemento)){
-                try{
+        for (String elemento : wordStems) {
+            if (!dbTerms.contains(elemento)) {
+                try {
                     op.setTerm(elemento);
-                }catch(SQLException e){
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
         }
-        
+
     }
-    public void registerAppearances(){
-        int idDoc=0;
-        try{
+
+    public void registerAppearances() {
+        int idDoc = 0;
+        try {
             idDoc = op.getNextId();
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         for (Map.Entry<String, Integer> entry : contadorDeElementos.entrySet()) {
             String term = entry.getKey();
             int ap = entry.getValue();
-            int idTerm=0;
-            try{
+            int idTerm = 0;
+            try {
                 idTerm = op.getTermId(term);
-            }catch(SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
-            
-            try{
+
+            try {
                 op.serAppearance(idTerm, idDoc, ap);
-            }catch(SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
-    public List<String> getWordStems(){
+
+    public List<String> getWordStems() {
         return wordStems;
     }
-    public List<String> getStopWords(){
+
+    public List<String> getStopWords() {
         return stopWords;
     }
-    public Map<String,Integer> getContadorElementos(){
+
+    public Map<String, Integer> getContadorElementos() {
         return contadorDeElementos;
     }
-    public void printStopWords(){
-        System.out.println("Stopwords:      "+ stopWords.size());
-        for(String stop : stopWords){
+
+    public void printStopWords() {
+        System.out.println("Stopwords:      " + stopWords.size());
+        for (String stop : stopWords) {
             System.out.println(stop);
         }
     }
-    public void printWordStem(){
-        System.out.println("Word Stem:      "+ wordStems.size());
-        for(String stem : wordStems){
+
+    public void printWordStem() {
+        System.out.println("Word Stem:      " + wordStems.size());
+        for (String stem : wordStems) {
             System.out.println(stem);
         }
     }
-    public void printAppearences(){
+
+    public void printAppearences() {
         System.out.println("Apariciones:");
         for (String elemento : contadorDeElementos.keySet()) {
             int contador = contadorDeElementos.get(elemento);
             System.out.println("El elemento '" + elemento + "' aparece " + contador + " veces en la lista.");
         }
     }
+
+    public double[] makeQuery() {
+
+        try {
+            List<String> dbTerms = op.getTerms();
+            List<String> queryTerms = getWordStems();
+            double[] query = new double[dbTerms.size()];
+            for(int i = 0; i < query.length; i++){
+                query[i]=Collections.frequency(queryTerms, dbTerms.get(i));
+            }
+            return query;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
 }
+

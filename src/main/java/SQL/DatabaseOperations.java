@@ -144,7 +144,7 @@ public class DatabaseOperations {
             // Paso 5: Cerrar la conexión a la base de datos
             try {
                 if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -152,5 +152,15 @@ public class DatabaseOperations {
 
         // Paso 6: Devolver la matriz de frecuencias
         return matrix;
+    }
+
+    public void closeConnection() {
+        if(conn !=null){
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
